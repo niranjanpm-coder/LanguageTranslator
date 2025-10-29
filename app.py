@@ -2,6 +2,11 @@ import streamlit as st
 from googletrans import Translator
 from gtts import gTTS
 import tempfile
+import sys, types
+
+
+if "cgi" not in sys.modules:
+    sys.modules["cgi"] = types.ModuleType("cgi")
 
 # App title
 st.title("🌍 Language Translator with Voice")
