@@ -1,12 +1,10 @@
 import streamlit as st
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 from gtts import gTTS
 import tempfile
 
 # App title
 st.title("🌍 Language Translator with Voice")
-
-translator = Translator()
 
 # Input text
 text = st.text_area("Enter text:")
@@ -24,16 +22,17 @@ target = st.selectbox("Select target language:", list(lang_map.keys()), format_f
 
 if st.button("Translate & Speak"):
     if text.strip():
-        # Translate
-        result = translator.translate(text, dest=target)
-        st.write(f"🕵️ Detected Language: **{result.src}**")
-        st.write(f"✅ Translation ({lang_map[target]}): **{result.text}**")
+        # Translate (auto-detects input language)
+        translated = GoogleTranslator(source="auto", target=target).translate(text)
+        st.write(f"✅ Translation ({lang_map[target]}): **{translated}**")
 
         # Generate speech
-        tts = gTTS(text=result.text, lang=target)
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:
-            tts.save(fp.name)
-            st.audio(fp.name, format="audio/mp3")
-
+        try:
+            tts = gTTS(text=translated, lang=target)
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:
+                tts.save(fp.name)
+                st.audio(fp.name, format="audio/mp3")
+        except Exception as e:
+            st.error(f"Speech generation failed: {e}")
     else:
         st.warning("Please enter some text to translate.")
